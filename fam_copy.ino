@@ -1,4 +1,3 @@
-
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
@@ -9,19 +8,16 @@
 DHT dht(DHTPIN, DHTTYPE);
 LiquidCrystal_I2C lcd(0x27, 16, 2); 
 
-float set_temp = 40.0;
+float set_temp = 30.0;
 
 void setup() {
   Serial.begin(9600);
   dht.begin();
   
-  // ใช้ .begin() หรือ .init() ตามเวอร์ชัน Library ของคุณ
-  // ถ้า .begin() ผ่านแล้วก็ใช้ตัวนี้ยาวๆ ได้เลยครับ
   lcd.begin();           
   lcd.backlight();
   
   pinMode(BUZZER, OUTPUT);
-  digitalWrite(BUZZER, LOW); 
 
   lcd.setCursor(0, 0);
   lcd.print("System Ready");
@@ -30,6 +26,7 @@ void setup() {
 }
 
 void loop() {
+
   float temperature = dht.readTemperature();
   float humidity = dht.readHumidity();
 
@@ -40,32 +37,37 @@ void loop() {
     return; 
   }
 
-  // แสดงผลบรรทัดบน
+  // แสดงผลอุณหภูมิ
   lcd.setCursor(0, 0);
   lcd.print("Temp: ");
   lcd.print(temperature, 1);
   lcd.write(223); 
   lcd.print("C    ");
 
-  // แสดงผลบรรทัดล่าง
+  // แสดงผลความชื้น
   lcd.setCursor(0, 1);
   lcd.print("Hum:  ");
   lcd.print(humidity, 1);
   lcd.print("%      ");
 
-  // เงื่อนไข Buzzer
+  // เงื่อนไข Buzzer (Passive)
   if (temperature >= set_temp) {
-    digitalWrite(BUZZER, HIGH);
+
+    tone(BUZZER, 1000);   // ส่งเสียง 1000Hz
     lcd.setCursor(13, 1); 
     lcd.print("!!!"); 
+
   } else {
-    digitalWrite(BUZZER, LOW);
+
+    noTone(BUZZER);       // ปิดเสียง
+
     lcd.setCursor(13, 1);
     lcd.print("   ");
   }
 
   delay(2000); 
-} // <--- ตรวจสอบว่ามีปีกกาปิดอันนี้อยู่ที่บรรทัดสุดท้ายเสมอ     
+}
+
 
 
 
